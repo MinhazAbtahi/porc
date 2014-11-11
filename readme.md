@@ -21,7 +21,12 @@ Let's dive right in:
 ```python
 from porc import Client
 
+# create a client using the default AWS US East host: https://api.orchestrate.io
 client = Client(YOUR_API_KEY)
+
+# create a client using the EU datacenter
+host = "https://api.aws-eu-west-1.orchestrate.io/"
+client = Client(YOUR_API_KEY, host)
 
 # make sure our API key works
 client.ping().raise_for_status()
