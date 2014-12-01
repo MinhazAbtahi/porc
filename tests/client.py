@@ -20,6 +20,32 @@ class ClientTest(unittest.TestCase):
     def test_ping(self):
         self.client.ping().raise_for_status()
 
+    @vcr.use_cassette('fixtures/client/head.yaml')
+    def test_head(self):
+        resp = self.client.put(
+            self.collections[0], self.keys[0], {"derp": True})
+        ref = resp.ref
+        resp.raise_for_status()
+
+        # Test top level API
+        resp = self.client.head()
+        resp.raise_for_status()
+        assert resp.status_code is 200
+        # Test collection
+        resp = self.client.head(self.collections[0])
+        resp.raise_for_status()
+        assert resp.status_code is 200
+        # Test key
+        resp = self.client.head(self.collections[0], self.keys[0])
+        resp.raise_for_status()
+        assert resp.status_code is 200
+        assert resp.ref == ref
+        # Test ref
+        resp = self.client.head(self.collections[0], self.keys[0], ref)
+        resp.raise_for_status()
+        assert resp.status_code is 200
+        assert resp.ref == ref
+
     @vcr.use_cassette('fixtures/client/get.yaml')
     def test_get(self):
         # test 404
@@ -86,6 +112,68 @@ class ClientTest(unittest.TestCase):
         self.client.put('movies', key, {}).raise_for_status()
         self.client.get('movies', key).raise_for_status()
         self.client.delete('movies', key).raise_for_status()
+
+    @vcr.use_cassette('fixtures/client/patch.yaml')
+    def test_patch(self):
+        # create initial object
+        resp = self.client.put(self.collections[0], self.keys[0], {
+            "derp": False,
+            "herp": True
+        }, False)
+        resp.raise_for_status()
+
+        # test default patch
+        self.client.patch(self.collections[0], self.keys[0], [
+            {"op": "add",
+            "path": "derp",
+            "value": True}
+        ])
+        resp = self.client.get(resp.collection, resp.key)
+        resp.raise_for_status()
+        assert resp['herp'] == True
+        assert resp['derp'] == True
+
+        # test patch with specific ref and with Patch
+        ref = resp.ref
+        patch = porc.Patch()
+        patch.add("herp", False)
+        resp = self.client.patch(self.collections[0], self.keys[0], patch, ref)
+        resp = self.client.get(resp.collection, resp.key)
+        resp.raise_for_status()
+        assert resp['herp'] == False
+        assert resp['derp'] == True
+
+    @vcr.use_cassette('fixtures/client/patch_merge.yaml')
+    def test_patch_merge(self):
+        # create initial object
+        resp = self.client.put(self.collections[0], self.keys[0], {
+        "derp": True,
+        "herp": False
+        }, False)
+        resp.raise_for_status()
+
+        # test patch_merge without ref
+        resp = self.client.patch_merge(self.collections[0], self.keys[0], {
+            "foo": True,
+        })
+        resp.raise_for_status()
+        resp = self.client.get(resp.collection, resp.key)
+        assert resp['herp'] == False
+        assert resp['derp'] == True
+        assert resp['foo'] == True
+
+        # test patch merge with ref
+        ref = resp.ref
+        resp = self.client.patch_merge(self.collections[0], self.keys[0], {
+            "bar": False
+        }, ref)
+        resp.raise_for_status()
+        resp = self.client.get(resp.collection, resp.key)
+        resp.raise_for_status()
+        assert resp['herp'] == False
+        assert resp['derp'] == True
+        assert resp['foo'] == True
+        assert resp['bar'] == False
 
     @vcr.use_cassette('fixtures/client/delete.yaml')
     def test_delete(self):

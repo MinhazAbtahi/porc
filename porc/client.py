@@ -2,6 +2,7 @@ from datetime import datetime
 from .resource import Resource
 from .version import VERSION
 from .pages import Pages
+from .patch import Patch
 from . import util
 
 
@@ -22,6 +23,17 @@ class Client(Resource):
     def ping(self):
         return self._make_request('HEAD')
 
+    def head(self, collection=None, key=None, ref=None):
+        path = list()
+        if collection:
+            path.append(collection)
+            if key:
+                path.append(key)
+                if ref:
+                    path.append('refs')
+                    path.append(ref)
+        return self._make_request('HEAD', path)
+
     def get(self, collection, key, ref=None):
         if ref:
             path = [collection, key, 'refs', ref]
@@ -39,6 +51,28 @@ class Client(Resource):
         elif ref == False:
             opts['If-None-Match'] = '"*"'
         return self._make_request('PUT', [collection, key], body, opts)
+
+    def patch(self, collection, key, body_or_patch, ref=None):
+        opts = {'Content-Type': 'application/json-patch+json'}
+        if ref:
+            opts['If-Match'] = ref.center(len(ref) + 2, '"')
+        elif ref == False:
+            # If-None-Match is not relevant for a PATCH request.
+            opts['If-None-Match'] = '"*"'
+        if isinstance(body_or_patch, Patch):
+            body = body_or_patch.operations
+        else:
+            body = body_or_patch
+        return self._make_request('PATCH', [collection, key], body, opts)
+
+    def patch_merge(self, collection, key, body, ref=None):
+        opts = {'Content-Type': 'application/merge-patch+json'}
+        if ref:
+            opts['If-Match'] = ref.center(len(ref) + 2, '"')
+        elif ref == False:
+            # If-None-Match is not relevant for a PATCH request.
+            opts['If-None-Match'] = '"*"'
+        return self._make_request('PATCH', [collection, key], body, opts)
 
     def delete(self, collection, key=None, ref=None):
         if key:

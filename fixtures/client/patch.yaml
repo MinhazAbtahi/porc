@@ -1,0 +1,111 @@
+interactions:
+- request:
+    body: '{"herp": true, "derp": false}'
+    headers:
+      Accept: [application/json]
+      Authorization: [Basic NTUxOGFhOWMtNGRlZS00ZTY4LWE5ZTUtMzJhMGZjOTRiZWQ3Og==]
+      Content-Length: ['29']
+      Content-Type: [application/json]
+      If-None-Match: ['"*"']
+      User-Agent: [python-requests/1.2.0 porc/0.3.1]
+    method: PUT
+    uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
+  response:
+    body: {string: !!python/unicode ''}
+    headers:
+      connection: [keep-alive]
+      content-type: [application/json]
+      date: ['Mon, 01 Dec 2014 21:35:07 GMT']
+      etag: ['"ec8a5c81d05b717c"']
+      location: [/v0/COLLECTION_1/KEY_1/refs/ec8a5c81d05b717c]
+      transfer-encoding: [chunked]
+      x-orchestrate-req-id: [eb8b7bc0-79a1-11e4-a865-12313d2f9238]
+    status: {code: 201, message: Created}
+- request:
+    body: '[{"path": "derp", "value": true, "op": "add"}]'
+    headers:
+      Accept: [application/json]
+      Authorization: [Basic NTUxOGFhOWMtNGRlZS00ZTY4LWE5ZTUtMzJhMGZjOTRiZWQ3Og==]
+      Content-Length: ['46']
+      Content-Type: [application/json-patch+json]
+      User-Agent: [python-requests/1.2.0 porc/0.3.1]
+    method: PATCH
+    uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
+  response:
+    body: {string: !!python/unicode ''}
+    headers:
+      connection: [keep-alive]
+      content-type: [application/json]
+      date: ['Mon, 01 Dec 2014 21:35:07 GMT']
+      etag: ['"75ce2d3c323e37d3"']
+      location: [/v0/COLLECTION_1/KEY_1/refs/75ce2d3c323e37d3]
+      transfer-encoding: [chunked]
+      x-orchestrate-req-id: [ebaa4e60-79a1-11e4-80fa-22000a0d84a1]
+    status: {code: 201, message: Created}
+- request:
+    body: null
+    headers:
+      Accept: [application/json]
+      Authorization: [Basic NTUxOGFhOWMtNGRlZS00ZTY4LWE5ZTUtMzJhMGZjOTRiZWQ3Og==]
+      Content-Type: [application/json]
+      User-Agent: [python-requests/1.2.0 porc/0.3.1]
+    method: GET
+    uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
+  response:
+    body: {string: !!python/unicode '{"herp":true,"derp":true}'}
+    headers:
+      connection: [keep-alive]
+      content-location: [/v0/COLLECTION_1/KEY_1/refs/75ce2d3c323e37d3]
+      content-type: [application/json]
+      date: ['Mon, 01 Dec 2014 21:35:07 GMT']
+      etag: ['"75ce2d3c323e37d3"']
+      last-modified: ['Mon, 01 Dec 2014 21:35:07 GMT']
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-orchestrate-req-id: [ebbc4fc0-79a1-11e4-80fa-22000a0d84a1]
+    status: {code: 200, message: OK}
+- request:
+    body: '[{"path": "herp", "value": false, "op": "add"}]'
+    headers:
+      Accept: [application/json]
+      Authorization: [Basic NTUxOGFhOWMtNGRlZS00ZTY4LWE5ZTUtMzJhMGZjOTRiZWQ3Og==]
+      Content-Length: ['47']
+      Content-Type: [application/json-patch+json]
+      If-Match: ['"75ce2d3c323e37d3"']
+      User-Agent: [python-requests/1.2.0 porc/0.3.1]
+    method: PATCH
+    uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
+  response:
+    body: {string: !!python/unicode ''}
+    headers:
+      connection: [keep-alive]
+      content-type: [application/json]
+      date: ['Mon, 01 Dec 2014 21:35:08 GMT']
+      etag: ['"8934e0bb22a73b87"']
+      location: [/v0/COLLECTION_1/KEY_1/refs/8934e0bb22a73b87]
+      transfer-encoding: [chunked]
+      x-orchestrate-req-id: [ebcd3fb0-79a1-11e4-b516-12313d2f7cdc]
+    status: {code: 201, message: Created}
+- request:
+    body: null
+    headers:
+      Accept: [application/json]
+      Authorization: [Basic NTUxOGFhOWMtNGRlZS00ZTY4LWE5ZTUtMzJhMGZjOTRiZWQ3Og==]
+      Content-Type: [application/json]
+      User-Agent: [python-requests/1.2.0 porc/0.3.1]
+    method: GET
+    uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
+  response:
+    body: {string: !!python/unicode '{"herp":false,"derp":true}'}
+    headers:
+      connection: [keep-alive]
+      content-location: [/v0/COLLECTION_1/KEY_1/refs/8934e0bb22a73b87]
+      content-type: [application/json]
+      date: ['Mon, 01 Dec 2014 21:35:08 GMT']
+      etag: ['"8934e0bb22a73b87"']
+      last-modified: ['Mon, 01 Dec 2014 21:35:08 GMT']
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-orchestrate-req-id: [ebde2fa0-79a1-11e4-a865-12313d2f9238]
+    status: {code: 200, message: OK}
+version: 1

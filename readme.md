@@ -63,8 +63,11 @@ print len(items)
 
 * [Client(api_key, custom_url=None, **options)](#client)
 * [Client.get(collection, key, ref=None)](#clientget)
+* [Client.head(collection=None, key=None, ref=None)](#clienthead)
 * [Client.post(collection, item)](#clientpost)
 * [Client.put(collection, key, item, ref=None)](#clientput)
+* [Client.patch(collection, key, item, ref=None)](#clientpatch)
+* [Client.patch_merge(collection, key, item, ref=None)](#clientpatch_merge)
 * [Client.delete(collection, key=None, ref=None)](#clientdelete)
 * [Client.refs(collection, key, **params)](#clientrefs)
 * [Client.list(collection, **params)](#clientlist)
@@ -83,6 +86,15 @@ print len(items)
 * [Pages.prev(querydict={}, **headers)](#pagesprev)
 * [Pages.reset()](#pagesreset)
 * [Pages.all()](#pagesall)
+* [Patch](#patch)
+* [Patch.add(path, value)](#patchadd)
+* [Patch.remove(path)](#patchremove)
+* [Patch.replace(path, value)](#patchreplace)
+* [Patch.move(old_path, new_path)](#patchmove)
+* [Patch.copy(original, copy)](#patchcopy)
+* [Patch.test(path, value)](#patchtest)
+* [Patch.increment(path, value=1)](#patchincrement)
+* [Patch.decrement(path, value=1)](#patchdecrement)
 * [Response](#response)
 
 ## API Reference
@@ -127,6 +139,13 @@ item = client.get('a_collection', 'a_key', 'a_ref')
 ```
 
 This method returns a [Response](#response) object.
+
+### Client.head
+This method is useful to get the `ref` of an item or to test the existence of an item, but does not return the body of the document in order to lower the overall size of the HTTP payload.
+
+```python
+ref = client.head('a_collection', 'a_key').ref
+```
 
 ### Client.post
 
@@ -178,6 +197,84 @@ response = client.put('a_collection', 'a_key', {
   "derp": True
 }, False)
 ```
+
+This method returns a [Response](#response) object.
+
+### Client.patch
+Defines a set of operations which mutate a Key/Value item sequentially based on array order. Each operation must be specified by an operation type, a path or set of paths, and a value. To learn more about the types of operations, please see http://orchestrate.io/docs/apiref#keyvalue-patch.
+
+```python
+from porc import Patch
+
+patch = Patch()
+patch.add("derp", True).remove("herp")
+
+client.patch('a_collection', 'a_key', patch)
+```
+
+The `porc.Patch` module provides an easy way to build an operation set document. You can read more about [`porc.Patch` below](#Patch).
+
+It is also possible to build the operation set yourself.
+
+```python
+
+op_set = [
+  {'op': 'add',
+  'path': 'derp',
+  'value': True},
+  {'op': 'remove',
+  'path': 'herp'}
+  ]
+
+client.patch('a_collection', 'a_key', op_set)
+```
+
+The optional `ref` argument can be used to perform conditional updates.
+To update only if your `ref` matches the latest version's, provide it to the method:
+
+```python
+from porc import Patch
+
+patch = Patch()
+patch.add("derp", True).remove("herp").decrement("foo")
+
+response = client.get('a_collection', 'a_key')
+
+res = client.patch('a_collection', 'a_key', patch, response.ref)
+# Only applies operations if response.ref is the current reference
+# make sure the request succeeded
+res.raise_for_status()
+```
+
+To learn more about `refs`, see http://orchestrate.io/docs/apiref#refs
+
+The `If-None-Match` header is not relevant to a `PATCH` request, since the key will already exist.
+
+This method returns a [Response](#response) object.
+
+### Client.patch_merge
+
+Providing a partial Key/Value item instead of a set of operations will merge the partial Key/Value into the existing Key/Value. Read more at http://orchestrate.io/docs/apiref#keyvalue-patch
+
+```python
+response = client.patch_merge('a_collection', 'a_key', {"foo": "bar"})
+# make sure the request succeeded
+response.raise_for_status()
+```
+
+The optional `ref` argument can be used to perform conditional updates.
+To update only if your `ref` matches the latest version's, provide it to the method:
+
+```python
+res = client.get('a_collection', 'a_key')
+
+response = client.patch_merge('a_collection', 'a_key', {"foo": "bar"}, res.ref)
+# Only merges if the response.ref is the current reference
+```
+
+To learn more about `refs`, see http://orchestrate.io/docs/apiref#refs
+
+The `If-None-Match` header is not relevant to a `PATCH` request, since the key will already exist.
 
 This method returns a [Response](#response) object.
 
@@ -566,6 +663,115 @@ return results
 ```
 
 This method does NOT return [Response](#response) objects. Instead, it returns raw `dict` objects for each item.
+
+### Patch
+Convenience class to help build an *operation set* document, as required by the `HTTP PATCH` method on the Orchestrate API. The `porc.Patch.operations` attribute is a Python list containing *operations*.  An *operation* is a specification on how to mutate a JSON document on the server side. Read more about server side document operations at http://orchestrate.io/docs/apiref#keyvalue-patch
+
+To build a patch:
+
+```python
+>>> from porc import Patch
+>>> patch = Patch()
+>>> patch.add("derp", True).remove("herp").decrement("foo")
+<porc.patch.Patch instance at 0x1021663f8>
+>>> patch.operations
+[{'path': 'derp', 'value': True, 'op': 'add'}, {'path': 'herp', 'op': 'remove'}, {'path': 'foo', 'value': -1, 'op': 'inc'}]
+>>>
+```
+
+A patch is meant to be handed directly to the `porc.Client.patch` method, as such:
+
+```python
+import porc
+client = porc.Client("API_KEY")
+patch = porc.Patch()
+
+ref = client.head("a_collection", "a_key").ref
+patch.add("derp", True).remove("herp").decrement("foo")
+res = client.patch("a_collection", "a_key", patch, ref)
+# Returns a Response Object
+```
+
+A Patch object can be chained together to build an *operation set*.
+
+### Patch.add
+Depending on the specified path, creates a field with that value, replaces
+an existing field with the specified value, or adds the value to an array.
+
+```python
+path = "location.latitude"
+value = "48.7502N"
+patch = Patch()
+patch.add(path, value)
+```
+
+### Patch.remove
+Removes the field at a specified path
+
+```python
+path = "location.longitude"
+patch.remove(path)
+```
+
+### Patch.replace
+Replaces an existing value with the given value at the specified path.
+
+```python
+path = "location.latitude"
+value = "48.7502N"
+patch.replace(path, value)
+```
+
+### Patch.move
+Moves a value from one path to another, removing the original path.
+
+```python
+old_path = "location.latitude"
+new_path = "location.lat"
+patch.move(old_path, new_path)
+```
+
+### Patch.copy
+Copies the value at one path to another.
+
+```python
+original = "location.latitude"
+copy_to = "location.lat"
+patch.copy(original, copy_to)
+```
+
+### Patch.test
+Tests equality of the value at a particular path to a specified value, the entire request fails if the test fails.
+
+```python
+test = "correct_value"
+path = "id"
+patch.test(path, test)
+```
+
+### Patch.increment
+Increments the numeric value at a specified field by the given numeric value, decrements if given numeric value is negative. If no value is given, `Patch.increment` will increment the field by 1.
+
+```python
+patch.increment("problems")
+patch.operations # [{'path': 'problems', 'value': 1, 'op': 'inc'}]
+
+patch.increment("problems", 99)
+patch.operations # [{'path': 'problems', 'value': 1, 'op': 'inc'}, {'path': 'problems', 'value': 99, 'op': 'inc'}]
+```
+
+### Patch.decrement
+Decrements the numeric value at a specified field by given a numeric value.
+Default is to decrement by `1`
+
+```python
+patch.decrement("problems")
+patch.operations # [{'path': 'problems', 'value': -1, 'op': 'inc'}]
+
+patch.decrement("problems", 99)
+patch.operations # [{'path': 'problems', 'value': -1, 'op': 'inc'}, {'path': 'problems', 'value': -99, 'op': 'inc'}]
+```
+
 
 ### Response
 
