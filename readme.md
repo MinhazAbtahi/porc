@@ -258,9 +258,8 @@ pages.next()
 
 ```python
 # list all items that match our search query
-pages = client.search('cafes', 'value.location:NEAR:{lat:... lon:... dist:1mi}', {
-  sort: 'value.location:distance:asc'
-})
+pages = client.search('cafes', 'value.location:NEAR:{lat:... lon:... dist:1mi}',
+                      sort='value.location:distance:asc')
 # get the first page of items in the collection
 page = pages.next()
 # ensure the request succeeded
