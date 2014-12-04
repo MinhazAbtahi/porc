@@ -6,7 +6,7 @@ Orchestrate interprets the path as dot notation.
 '''
 class Patch:
     def __init__(self):
-        self.operations = list()
+        self.operations = []
 
     '''
     Depending on the specified path, creates a field with that value, replaces
@@ -55,7 +55,9 @@ class Patch:
 
     '''
     Decrements the numeric value at a specified field by given a numeric value.
-    Default is `-1`
+    This method is sugar. It wraps the `increment` method and multiplies the
+    value by -1. Passing in a negative value will increment the field. The
+    default is `-1`
     '''
     def decrement(self, path, value=1):
         self.increment(path, value*-1)
@@ -66,7 +68,7 @@ class Patch:
             'op': op,
             'path': path
         }
-        if value:
+        if value != None:
             op['value'] = value
         if from_path:
             op['from'] = from_path

@@ -118,7 +118,11 @@ class ClientTest(unittest.TestCase):
         # create initial object
         resp = self.client.put(self.collections[0], self.keys[0], {
             "derp": False,
-            "herp": True
+            "herp": True,
+            "foo": False,
+            "baz": True,
+            "eggs": False,
+            "count": 1
         }, False)
         resp.raise_for_status()
 
@@ -132,16 +136,21 @@ class ClientTest(unittest.TestCase):
         resp.raise_for_status()
         assert resp['herp'] == True
         assert resp['derp'] == True
+        assert resp['foo'] == False
 
         # test patch with specific ref and with Patch
         ref = resp.ref
         patch = porc.Patch()
-        patch.add("herp", False)
+        patch.add("bar", True).remove("derp").replace("herp", False).move("baz", "spam").copy("eggs", "herpderp").test("foo", False).increment("count").increment("count", 2).decrement("count").decrement("count",2)
         resp = self.client.patch(self.collections[0], self.keys[0], patch, ref)
         resp = self.client.get(resp.collection, resp.key)
         resp.raise_for_status()
         assert resp['herp'] == False
-        assert resp['derp'] == True
+        assert 'derp' not in [key for key in resp]
+        assert resp['bar'] == True
+        assert resp['spam'] == True
+        assert resp['herpderp'] == False
+        assert resp['count'] == 1
 
     @vcr.use_cassette('fixtures/client/patch_merge.yaml')
     def test_patch_merge(self):

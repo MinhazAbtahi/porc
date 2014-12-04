@@ -248,7 +248,7 @@ res.raise_for_status()
 
 To learn more about `refs`, see http://orchestrate.io/docs/apiref#refs
 
-The `If-None-Match` header is not relevant to a `PATCH` request, since the key will already exist.
+The `If-None-Match` header is not relevant to a `PATCH` request, since the key MUST already exist for the patch operation to succeed.
 
 This method returns a [Response](#response) object.
 
@@ -274,7 +274,7 @@ response = client.patch_merge('a_collection', 'a_key', {"foo": "bar"}, res.ref)
 
 To learn more about `refs`, see http://orchestrate.io/docs/apiref#refs
 
-The `If-None-Match` header is not relevant to a `PATCH` request, since the key will already exist.
+The `If-None-Match` header is not relevant to a `PATCH` request, since the key MUST already exist for the patch operation to succeed
 
 This method returns a [Response](#response) object.
 
@@ -762,7 +762,9 @@ patch.operations # [{'path': 'problems', 'value': 1, 'op': 'inc'}, {'path': 'pro
 
 ### Patch.decrement
 Decrements the numeric value at a specified field by given a numeric value.
-Default is to decrement by `1`
+This method is sugar. It wraps the `increment` method and multiplies the
+value by -1. Passing in a negative value will increment the field. The
+default is `-1`
 
 ```python
 patch.decrement("problems")
