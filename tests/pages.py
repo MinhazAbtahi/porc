@@ -7,7 +7,7 @@ from .credentials import API_KEY
 
 class PagesTest(unittest.TestCase):
 
-    # @vcr.use_cassette('fixtures/pages/setup.yaml')
+    # @vcr.use_cassette('fixtures/pages/setup.yaml', filter_headers=['Authorization'])
 
     def setUp(self):
         self.api_key = API_KEY
@@ -24,11 +24,11 @@ class PagesTest(unittest.TestCase):
             ]
             [future.result().raise_for_status() for future in futures]
 
-    @vcr.use_cassette('fixtures/pages/teardown.yaml')
+    @vcr.use_cassette('fixtures/pages/teardown.yaml', filter_headers=['Authorization'])
     def tearDown(self):
         self.client.delete(self.collections[0]).raise_for_status()
 
-    @vcr.use_cassette('fixtures/pages/reset.yaml')
+    @vcr.use_cassette('fixtures/pages/reset.yaml', filter_headers=['Authorization'])
     def test_reset(self):
         resp = self.pages.next()
         resp.raise_for_status()
@@ -38,12 +38,12 @@ class PagesTest(unittest.TestCase):
         resp.raise_for_status()
         assert resp.links.get('prev', None) == None
 
-    @vcr.use_cassette('fixtures/pages/next.yaml')
+    @vcr.use_cassette('fixtures/pages/next.yaml', filter_headers=['Authorization'])
     def test_next(self):
         resp = self.pages.next()
         resp.raise_for_status()
 
-    @vcr.use_cassette('fixtures/pages/prev.yaml')
+    @vcr.use_cassette('fixtures/pages/prev.yaml', filter_headers=['Authorization'])
     def test_prev(self):
         time.sleep(3)
         resp = self.pages.next()
@@ -53,12 +53,12 @@ class PagesTest(unittest.TestCase):
         resp = self.pages.prev()
         resp.raise_for_status()
 
-    @vcr.use_cassette('fixtures/pages/all.yaml')
+    @vcr.use_cassette('fixtures/pages/all.yaml', filter_headers=['Authorization'])
     def test_all(self):
         all_items = self.pages.all()
         assert len(all_items) > 0
 
-    @vcr.use_cassette('fixtures/pages/iter.yaml')
+    @vcr.use_cassette('fixtures/pages/iter.yaml', filter_headers=['Authorization'])
     def test_iter(self):
         pages = [page for page in self.pages]
         [page.raise_for_status() for page in pages]

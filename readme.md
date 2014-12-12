@@ -95,6 +95,12 @@ print len(items)
 * [Patch.test(path, value)](#patchtest)
 * [Patch.increment(path, value=1)](#patchincrement)
 * [Patch.decrement(path, value=1)](#patchdecrement)
+* [Search](#search)
+* [Search.query](#searchquery)
+* [Search.limit](#searchlimit)
+* [Search.offset](#searchoffset)
+* [Search.aggregate](#searchaggregate)
+* [Search.sort](#searchsort)
 * [Response](#response)
 
 ## API Reference
@@ -353,6 +359,8 @@ pages.next()
 
 ### Client.search
 
+#### `**kwargs`
+
 ```python
 # list all items that match our search query
 pages = client.search('cafes', 'value.location:NEAR:{lat:... lon:... dist:1mi}',
@@ -368,6 +376,27 @@ for page in pages:
   # ensure getting the page succeeded
   page.raise_for_response()
 ```
+
+#### Using `Porc.Search`
+See [Porc.Search](#search) for detailed documentation on the [`Porc.Search`](#search) API.
+
+```python
+search = porc.Search().query('value.location:NEAR:{lat:... lon:... dist:1mi}').sort('location:distance', 'asc')
+# list all items that match our search query
+pages = client.search('cafes', search)
+# get the first page of items in the collection
+page = pages.next()
+# ensure the request succeeded
+page.raise_for_status()
+# get all items in the collection
+items = pages.all()
+# iterate over the pages of items in the collection
+for page in pages:
+  # ensure getting the page succeeded
+  page.raise_for_response()
+  ```
+
+#### Response
 
 Return a [Pages](#pages) object for iterating over the results of search queries.
 
@@ -774,6 +803,79 @@ patch.decrement("problems", 99)
 patch.operations # [{'path': 'problems', 'value': -1, 'op': 'inc'}, {'path': 'problems', 'value': -99, 'op': 'inc'}]
 ```
 
+
+### Search
+The `Porc.Search` class is another convenience class to help build a Lucene style query. The class supports method chaining. It's goal is to help increase the readability of Python code. To learn more about Orchestrate's querying functionality, see http://orchestrate.io/docs/apiref#search.
+
+```python
+search = porc.Search().query("price:[300000 TO 450000]").sort("price", "asc").limit("50")
+pages = client.search('for_sale', search)
+# get the first page of items in the collection
+page = pages.next()
+# ensure the request succeeded
+page.raise_for_status()
+# get all items in the collection
+items = pages.all()
+# iterate over the pages of items in the collection
+for page in pages:
+  # ensure getting the page succeeded
+  page.raise_for_response()
+```
+
+#### Search.query
+This is an essential method necessary to build a search object. It is very thin, only setting the `query` parameter. It accepts raw lucene query syntax.To learn more about Orchestrate's querying functionality, see http://orchestrate.io/docs/apiref#search.
+
+```python
+search = porc.Search().query("last_name:Smith*")
+pages = client.search('users', search)
+page = pages.next()
+page.raise_for_status()
+```
+
+#### Search.limit
+The result count limit as an integer, the default is `10` and the max is `100`.
+
+```python
+search = porc.Search().query("last_name:Smith*").limit(1)
+pages = client.search('users', search)
+# get all items in the collection
+items = pages.all()
+```
+
+#### Search.offset
+The starting position of the result set.
+
+```python
+search = porc.Search().query("last_name:Smith*").offset(2)
+pages = client.search('users', search)
+page = pages.next()
+page.raise_for_status()
+```
+
+#### Search.aggregate
+Required parameters:
+
+ * `aggregate_type` -
+ * `field` -
+
+The `options` parameter is an optional `str` or `list` that maybe required by the `aggregate_type`.  
+
+```python
+buckets = ['*~5', '5~10', '10~30', '30~*']
+search = porc.Search().query("price:[250000 TO 450000]").aggregate('distance', 'location', buckets)
+pages = client.search('users', search)
+page = pages.next()
+page.raise_for_status()
+```
+
+#### Search.sort
+
+```python
+search = porc.Search().query("price:[250000 TO 450000]").sort("price", "desc")
+pages = client.search('users', search)
+page = pages.next()
+page.raise_for_status()
+```
 
 ### Response
 

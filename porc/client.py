@@ -3,6 +3,7 @@ from .resource import Resource
 from .version import VERSION
 from .pages import Pages
 from .patch import Patch
+from .search import Search
 from . import util
 
 
@@ -95,8 +96,12 @@ class Client(Resource):
     def list(self, collection, **params):
         return Pages(self.opts, self.uri, collection, params)
 
-    def search(self, collection, query, **params):
-        params['query'] = query
+    def search(self, collection, query_or_search, **params):
+        if isinstance(query_or_search, Search):
+            params = dict(list(params.items()) + list(query_or_search.params.items()))
+        else:
+            params['query'] = query_or_search
+            
         return Pages(self.opts, self.uri, collection, params)
 
     def get_relations(self, collection, key, *relations):
