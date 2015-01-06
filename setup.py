@@ -29,7 +29,7 @@ setup(name='porc',
       classifiers=[
           'Intended Audience :: Developers',
           'Natural Language :: English',
-          'License :: OSI Approved :: MIT License',
+          'License :: OSI Approved :: Apache Software License',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.7',
