@@ -6,4 +6,5 @@ from .pages import Pages
 from .patch import Patch
 from .resource import Resource
 from .response import Response
+from .search import Search
 from . import util

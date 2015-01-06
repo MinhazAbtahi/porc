@@ -3,9 +3,8 @@ interactions:
     body: null
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: GET
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
   response:
@@ -14,18 +13,17 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:27:12 GMT']
+      date: ['Sat, 13 Dec 2014 00:16:35 GMT']
       transfer-encoding: [chunked]
-      x-orchestrate-req-id: [373e4aa0-429f-11e4-bd6b-12313d2f7cdc]
+      x-orchestrate-req-id: [4c3e05a0-825d-11e4-a70c-12313d2f9238]
     status: {code: 404, message: Not Found}
 - request:
     body: '{"derp": true}'
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Length: ['14']
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: PUT
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
   response:
@@ -33,19 +31,18 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:27:12 GMT']
+      date: ['Sat, 13 Dec 2014 00:16:35 GMT']
       etag: ['"e3f664c2807f4787"']
       location: [/v0/COLLECTION_1/KEY_1/refs/e3f664c2807f4787]
       transfer-encoding: [chunked]
-      x-orchestrate-req-id: [37533230-429f-11e4-9c60-22000a0d84a1]
+      x-orchestrate-req-id: [4c575a00-825d-11e4-a6de-22000a0d84a1]
     status: {code: 201, message: Created}
 - request:
     body: null
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: GET
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1/refs/e3f664c2807f4787
   response:
@@ -53,19 +50,19 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:27:12 GMT']
+      date: ['Sat, 13 Dec 2014 00:16:35 GMT']
       etag: ['"e3f664c2807f4787"']
+      last-modified: ['Sat, 13 Dec 2014 00:16:35 GMT']
       transfer-encoding: [chunked]
       vary: [Accept-Encoding]
-      x-orchestrate-req-id: [37675670-429f-11e4-99e0-12313d2f9238]
+      x-orchestrate-req-id: [4c68e630-825d-11e4-a439-12313d2f7cdc]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: GET
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1
   response:
@@ -74,20 +71,20 @@ interactions:
       connection: [keep-alive]
       content-location: [/v0/COLLECTION_1/KEY_1/refs/e3f664c2807f4787]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:27:12 GMT']
+      date: ['Sat, 13 Dec 2014 00:16:35 GMT']
       etag: ['"e3f664c2807f4787"']
+      last-modified: ['Sat, 13 Dec 2014 00:16:35 GMT']
       transfer-encoding: [chunked]
       vary: [Accept-Encoding]
-      x-orchestrate-req-id: [37786d70-429f-11e4-bd6b-12313d2f7cdc]
+      x-orchestrate-req-id: [4c7960f0-825d-11e4-a70c-12313d2f9238]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Length: ['0']
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: DELETE
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1/KEY_1?purge=true
   response:
@@ -95,7 +92,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:27:12 GMT']
-      x-orchestrate-req-id: [37893650-429f-11e4-9c60-22000a0d84a1]
+      date: ['Sat, 13 Dec 2014 00:16:35 GMT']
+      x-orchestrate-req-id: [4c89dbb0-825d-11e4-a6de-22000a0d84a1]
     status: {code: 204, message: No Content}
 version: 1

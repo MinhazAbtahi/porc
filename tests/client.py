@@ -16,11 +16,11 @@ class ClientTest(unittest.TestCase):
 
     # N.B.: TESTS MUST CLEAN UP AFTER THEMSELVES
 
-    @vcr.use_cassette('fixtures/client/ping.yaml')
+    @vcr.use_cassette('fixtures/client/ping.yaml', filter_headers=['Authorization'])
     def test_ping(self):
         self.client.ping().raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/head.yaml')
+    @vcr.use_cassette('fixtures/client/head.yaml', filter_headers=['Authorization'])
     def test_head(self):
         resp = self.client.put(
             self.collections[0], self.keys[0], {"derp": True})
@@ -46,8 +46,10 @@ class ClientTest(unittest.TestCase):
         assert resp.status_code is 200
         assert resp.ref == ref
 
-    @vcr.use_cassette('fixtures/client/get.yaml')
+    @vcr.use_cassette('fixtures/client/get.yaml', filter_headers=['Authorization'])
     def test_get(self):
+        # test_delete deletes a collection, wait 5s when the VCR is recording.
+        # time.sleep(5)
         # test 404
         resp = self.client.get(self.collections[0], self.keys[0])
         assert resp.status_code == 404
@@ -66,7 +68,7 @@ class ClientTest(unittest.TestCase):
         self.client.delete(
             self.collections[0], self.keys[0]).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/post.yaml')
+    @vcr.use_cassette('fixtures/client/post.yaml', filter_headers=['Authorization'])
     def test_post(self):
                 # test creates
         resp = self.client.post(self.collections[0], {"derp": True})
@@ -79,8 +81,10 @@ class ClientTest(unittest.TestCase):
         self.client.delete(self.collections[0], key, ref).raise_for_status()
         self.client.delete(self.collections[0], key).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/put.yaml')
+    @vcr.use_cassette('fixtures/client/put.yaml', filter_headers=['Authorization'])
     def test_put(self):
+        # make sure the self.key[0] does not exist for this test
+        self.client.delete(self.collections[0], self.keys[0]).raise_for_status()
         # test creates with If-None-Match
         resp = self.client.put(
             self.collections[0], self.keys[0], {
@@ -106,14 +110,14 @@ class ClientTest(unittest.TestCase):
         self.client.delete(
             self.collections[0], self.keys[0]).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/put_url_escape.yaml')
+    @vcr.use_cassette('fixtures/client/put_url_escape.yaml', filter_headers=['Authorization'])
     def test_put_url_escape(self):
         key = "007: Tomorrow Never Dies / 007: The World is Not Enough"
         self.client.put('movies', key, {}).raise_for_status()
         self.client.get('movies', key).raise_for_status()
         self.client.delete('movies', key).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/patch.yaml')
+    @vcr.use_cassette('fixtures/client/patch.yaml', filter_headers=['Authorization'])
     def test_patch(self):
         # create initial object
         resp = self.client.put(self.collections[0], self.keys[0], {
@@ -123,7 +127,7 @@ class ClientTest(unittest.TestCase):
             "baz": True,
             "eggs": False,
             "count": 1
-        }, False)
+        })
         resp.raise_for_status()
 
         # test default patch
@@ -152,13 +156,13 @@ class ClientTest(unittest.TestCase):
         assert resp['herpderp'] == False
         assert resp['count'] == 1
 
-    @vcr.use_cassette('fixtures/client/patch_merge.yaml')
+    @vcr.use_cassette('fixtures/client/patch_merge.yaml', filter_headers=['Authorization'])
     def test_patch_merge(self):
         # create initial object
         resp = self.client.put(self.collections[0], self.keys[0], {
         "derp": True,
         "herp": False
-        }, False)
+        })
         resp.raise_for_status()
 
         # test patch_merge without ref
@@ -184,7 +188,7 @@ class ClientTest(unittest.TestCase):
         assert resp['foo'] == True
         assert resp['bar'] == False
 
-    @vcr.use_cassette('fixtures/client/delete.yaml')
+    @vcr.use_cassette('fixtures/client/delete.yaml', filter_headers=['Authorization'])
     def test_delete(self):
                 # create
         resp = self.client.post(self.collections[0], {"derp": True})
@@ -197,7 +201,7 @@ class ClientTest(unittest.TestCase):
         # delete collection
         self.client.delete(resp.collection).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/refs.yaml')
+    @vcr.use_cassette('fixtures/client/refs.yaml', filter_headers=['Authorization'])
     def test_refs(self):
         # create
         resp = self.client.post(self.collections[0], {"derp": True})
@@ -209,7 +213,7 @@ class ClientTest(unittest.TestCase):
         # delete
         self.client.delete(resp.collection, resp.key).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/list.yaml')
+    @vcr.use_cassette('fixtures/client/list.yaml', filter_headers=['Authorization'])
     def test_list(self):
         # create
         resp = self.client.post(self.collections[0], {"derp": True})
@@ -222,7 +226,7 @@ class ClientTest(unittest.TestCase):
         # delete
         self.client.delete(resp.collection, resp.key).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/search.yaml')
+    @vcr.use_cassette('fixtures/client/search.yaml', filter_headers=['Authorization'])
     def test_search(self):
         # create
         resp = self.client.post(self.collections[0], {"herp": "hello"})
@@ -237,7 +241,24 @@ class ClientTest(unittest.TestCase):
         # delete
         self.client.delete(resp.collection, resp.key).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/relations.yaml')
+        # Test Search with a Search Object
+        # create
+        resp = self.client.post(self.collections[0], {"herp": 2})
+        resp.raise_for_status()
+        # wait; search is eventually consistent
+        time.sleep(3)
+        # build a search query
+        search = porc.Search()
+        search = search.query("*").limit(1).sort("herp", "desc").aggregate("stats", "herp")
+        # list
+        pages = self.client.search(resp.collection, search)
+        page = pages.next()
+        page.raise_for_status()
+        assert page['count'] == 1
+        # delete
+        self.client.delete(resp.collection, resp.key).raise_for_status()
+
+    @vcr.use_cassette('fixtures/client/relations.yaml', filter_headers=['Authorization'])
     def test_crud_relations(self):
         # create two items
         responses = []
@@ -277,24 +298,22 @@ class ClientTest(unittest.TestCase):
         # delete collection
         self.client.delete(self.collections[0]).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/events.yaml')
+    @vcr.use_cassette('fixtures/client/events.yaml', filter_headers=['Authorization'])
     def test_crud_events(self):
         # create an event
         resp = self.client.post_event(
             self.collections[0], self.keys[0], 'log', {'herp': 'derp'})
         resp.raise_for_status()
         # create an event with a timestamp
-        timestamp = datetime.utcfromtimestamp(float(resp.timestamp) / 1000.0)
+        timestamp = resp.headers['Location'].split('/')[6]
         resp = self.client.post_event(
             self.collections[0], self.keys[0], 'log', {'herp': 'derp'}, timestamp)
         resp.raise_for_status()
         # get an event
-        timestamp = datetime.utcfromtimestamp(float(resp.timestamp) / 1000.0)
         resp = self.client.get_event(
             resp.collection, resp.key, resp.type, timestamp, resp.ordinal)
         resp.raise_for_status()
         # update an event
-        timestamp = datetime.utcfromtimestamp(float(resp.timestamp) / 1000.0)
         resp = self.client.put_event(
             resp.collection, resp.key, resp.type, timestamp, resp.ordinal, {'herp': 'lol'})
         resp.raise_for_status()
@@ -309,15 +328,18 @@ class ClientTest(unittest.TestCase):
         page.raise_for_status()
         assert page['count'] == 1
         # delete event with ref
-        timestamp = datetime.utcfromtimestamp(float(resp.timestamp) / 1000.0)
         self.client.delete_event(
             resp.collection, resp.key, resp.type, timestamp, resp.ordinal, resp.ref).raise_for_status()
+        # create an event
+        resp = self.client.post_event(
+            self.collections[0], self.keys[0], 'log', {'herp': 'derp'})
+        resp.raise_for_status()
         # delete event without ref
-        timestamp = datetime.utcfromtimestamp(float(resp.timestamp) / 1000.0)
+        timestamp = resp.headers['Location'].split('/')[6]
         self.client.delete_event(
             resp.collection, resp.key, resp.type, timestamp, resp.ordinal).raise_for_status()
 
-    @vcr.use_cassette('fixtures/client/async.yaml')
+    @vcr.use_cassette('fixtures/client/async.yaml', filter_headers=['Authorization'])
     def test_async(self):
         # add three items
         with self.client.async() as c:

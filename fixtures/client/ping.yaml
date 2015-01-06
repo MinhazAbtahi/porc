@@ -3,9 +3,8 @@ interactions:
     body: null
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: HEAD
     uri: https://api.orchestrate.io:443/v0
   response:
@@ -13,7 +12,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:25:59 GMT']
-      x-orchestrate-req-id: [0bff1fe0-429f-11e4-9c60-22000a0d84a1]
+      date: ['Sat, 13 Dec 2014 00:16:40 GMT']
+      x-orchestrate-req-id: [4f41cfc0-825d-11e4-a70c-12313d2f9238]
     status: {code: 200, message: OK}
 version: 1

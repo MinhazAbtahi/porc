@@ -3,10 +3,9 @@ interactions:
     body: null
     headers:
       Accept: [application/json]
-      Authorization: [Basic NGUyODI4MmMtOWI4Yy00NGU5LTljM2ItOTI5OTEyMjFhOWVkOg==]
       Content-Length: ['0']
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.3.0]
+      User-Agent: [python-requests/1.2.0 porc/0.4.0]
     method: DELETE
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1?force=true
   response:
@@ -14,7 +13,7 @@ interactions:
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Mon, 22 Sep 2014 21:26:07 GMT']
-      x-orchestrate-req-id: [10a9e340-429f-11e4-bd6b-12313d2f7cdc]
+      date: ['Sat, 13 Dec 2014 00:16:53 GMT']
+      x-orchestrate-req-id: [576abd60-825d-11e4-a439-12313d2f7cdc]
     status: {code: 204, message: No Content}
 version: 1
