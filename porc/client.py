@@ -5,13 +5,24 @@ from .pages import Pages
 from .patch import Patch
 from .search import Search
 from . import util
+from urlparse import urlparse, urlunparse
 
 
 class Client(Resource):
 
     def __init__(self, api_key, custom_url=None, use_async=False, **kwargs):
         self.api_key = api_key
-        self.url = custom_url or 'https://api.orchestrate.io/v0'
+
+        # If no custom_url is provided, use the default
+        if custom_url == None:
+            self.url = 'https://api.orchestrate.io/v0'
+        else:
+            # Ensure the base path is /v0
+            u = list(urlparse(custom_url))
+            if u[2] != "v0":
+                u[2] = "v0"
+            self.url = urlunparse(u)
+
         if 'headers' not in kwargs:
             kwargs['headers'] = {
                 'Content-Type': 'application/json',
