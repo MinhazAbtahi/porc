@@ -19,7 +19,6 @@ class ClientTest(unittest.TestCase):
         self.client = porc.Client(self.api_key)
         self.collections = ['COLLECTION_1', 'COLLECTION_2']
         self.keys = ['KEY_1', 'KEY_2']
-        self.client.ping().raise_for_status()
 
     # N.B.: TESTS MUST CLEAN UP AFTER THEMSELVES
 
