@@ -72,3 +72,6 @@ class Response(MutableMapping):
 
     def __len__(self):
         return len(self.json)
+
+    def __str__(self):
+        return "%s: %s" % (self.response, self.json)
