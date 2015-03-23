@@ -5,14 +5,21 @@ import porc
 import unittest
 from .credentials import API_KEY
 
+import requests
+requests.packages.urllib3.disable_warnings()
 
 class ClientTest(unittest.TestCase):
 
     def setUp(self):
         self.api_key = API_KEY
+        if API_KEY == None:
+            print "No API key provided!"
+            sys.exit(-1)
+
         self.client = porc.Client(self.api_key)
         self.collections = ['COLLECTION_1', 'COLLECTION_2']
         self.keys = ['KEY_1', 'KEY_2']
+        self.client.ping().raise_for_status()
 
     # N.B.: TESTS MUST CLEAN UP AFTER THEMSELVES
 
@@ -257,6 +264,51 @@ class ClientTest(unittest.TestCase):
         assert page['count'] == 1
         # delete
         self.client.delete(resp.collection, resp.key).raise_for_status()
+
+
+    @vcr.use_cassette('fixtures/client/search_events.yaml', filter_headers=['Authorization'])
+    def test_search_events(self):
+        # Create some normal data
+        resp = self.client.post(self.collections[0], {"name": "shark"})
+        resp.raise_for_status()
+        resp = self.client.post(self.collections[0], {"name": "dog"})
+        resp.raise_for_status()
+        resp = self.client.post(self.collections[0], {"name": "bat"})
+        resp.raise_for_status()
+
+        # Create some events
+        resp = self.client.post_event(self.collections[0], self.keys[0], 'slog', {"name": "dog"})
+        resp.raise_for_status()
+        resp = self.client.post_event(self.collections[0], self.keys[0], 'slog', {"name": "cat"})
+        resp.raise_for_status()
+        resp = self.client.post_event(self.collections[0], self.keys[0], 'slog', {"name": "giraffe"})
+        resp.raise_for_status()
+
+        # Wait for everything to get indexed in search
+        time.sleep(3)
+
+        # Do an event search for dogs (should yield 1 event)
+        s1 = porc.Search().query('dog').limit(5).kind("event")
+        pages = self.client.search(self.collections[0], s1).all()
+        assert len(pages) == 1
+        assert pages[0]["path"]["kind"] == "event"
+        assert pages[0]["value"]["name"] == "dog"
+
+        # Do a item/event search for dog (should yield 2)
+        s2 = porc.Search().query('dog').limit(5).kind("event item")
+        pages = self.client.search(self.collections[0], s2).all()
+        assert len(pages) == 2
+
+        # Do a normal search for dog (should yield 1 item)
+        s3 = porc.Search().query('dog').limit(5)
+        pages = self.client.search(self.collections[0], s3).all()
+        assert len(pages) == 1
+        assert pages[0]["path"]["kind"] == "item"
+        assert pages[0]["value"]["name"] == "dog"
+
+        # Delete the collection
+        self.client.delete(self.collections[0]).raise_for_status()
+
 
     @vcr.use_cassette('fixtures/client/relations.yaml', filter_headers=['Authorization'])
     def test_crud_relations(self):
