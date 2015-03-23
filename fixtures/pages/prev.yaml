@@ -4,58 +4,57 @@ interactions:
     headers:
       Accept: [application/json]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.4.0]
+      User-Agent: [python-requests/1.2.0 porc/0.5.0]
     method: GET
     uri: https://api.orchestrate.io:443/v0/COLLECTION_1?query=%2A&limit=1
   response:
-    body: {string: !!python/unicode '{"count":1,"total_count":10,"results":[{"path":{"collection":"COLLECTION_1","key":"06f5e7ccbc20c0d3","ref":"545689fb72dd515a","reftime":1418429812925},"score":1.0,"reftime":1418429812925}],"next":"/v0/COLLECTION_1?limit=1&query=%2A&offset=1"}'}
+    body: {string: !!python/unicode '{"count":1,"total_count":9,"results":[{"path":{"collection":"COLLECTION_1","kind":"item","key":"08fd74c14420f067","ref":"545689fb72dd515a","reftime":1427146425669},"value":{"lol":true},"score":1.0,"reftime":1427146425669}],"next":"/v0/COLLECTION_1?limit=1&query=%2A&offset=1"}'}
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Sat, 13 Dec 2014 00:17:00 GMT']
+      date: ['Mon, 23 Mar 2015 21:33:49 GMT']
       link: ['</v0/COLLECTION_1?limit=1&query=%2A&offset=1>; rel="next"']
       transfer-encoding: [chunked]
       vary: [Accept-Encoding]
-      x-orchestrate-req-id: [5b7dad90-825d-11e4-a70c-12313d2f9238]
+      x-orchestrate-req-id: [4af8d260-d1a4-11e4-8248-22000a0d84a1]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.4.0]
+      User-Agent: [python-requests/1.2.0 porc/0.5.0]
     method: GET
-    uri: https://api.orchestrate.io:443//v0/COLLECTION_1?limit=1&query=%2A&offset=1&query=%2A&limit=1
+    uri: https://api.orchestrate.io:443//v0/COLLECTION_1?limit=1&query=%2A&offset=1
   response:
-    body: {string: !!python/unicode '{"count":1,"total_count":3,"results":[{"path":{"collection":"COLLECTION_1","key":"06f5e7d91320bc5e","ref":"545689fb72dd515a","reftime":1418429816083},"value":{"lol":true},"score":1.0,"reftime":1418429816083}],"next":"/v0/COLLECTION_1?limit=1&limit=1&query=%2A&query=%2A&offset=2","prev":"/v0/COLLECTION_1?limit=1&limit=1&query=%2A&query=%2A&offset=0"}'}
+    body: {string: !!python/unicode '{"count":1,"total_count":9,"results":[{"path":{"collection":"COLLECTION_1","kind":"item","key":"08fd74bf4c208db8","ref":"545689fb72dd515a","reftime":1427146425164},"value":{"lol":true},"score":1.0,"reftime":1427146425164}],"next":"/v0/COLLECTION_1?limit=1&query=%2A&offset=2","prev":"/v0/COLLECTION_1?limit=1&query=%2A&offset=0"}'}
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Sat, 13 Dec 2014 00:17:01 GMT']
-      link: ['</v0/COLLECTION_1?limit=1&limit=1&query=%2A&query=%2A&offset=2>; rel="next"',
-        '</v0/COLLECTION_1?limit=1&limit=1&query=%2A&query=%2A&offset=0>; rel="prev"']
+      date: ['Mon, 23 Mar 2015 21:33:49 GMT']
+      link: ['</v0/COLLECTION_1?limit=1&query=%2A&offset=2>; rel="next"', '</v0/COLLECTION_1?limit=1&query=%2A&offset=0>;
+          rel="prev"']
       transfer-encoding: [chunked]
       vary: [Accept-Encoding]
-      x-orchestrate-req-id: [5bc564f0-825d-11e4-a6de-22000a0d84a1]
+      x-orchestrate-req-id: [4b3a6f40-d1a4-11e4-a2f5-12313d2f9238]
     status: {code: 200, message: OK}
 - request:
     body: null
     headers:
       Accept: [application/json]
       Content-Type: [application/json]
-      User-Agent: [python-requests/1.2.0 porc/0.4.0]
+      User-Agent: [python-requests/1.2.0 porc/0.5.0]
     method: GET
-    uri: https://api.orchestrate.io:443//v0/COLLECTION_1?limit=1&limit=1&query=%2A&query=%2A&offset=0&query=%2A&limit=1
+    uri: https://api.orchestrate.io:443//v0/COLLECTION_1?limit=1&query=%2A&offset=0
   response:
-    body: {string: !!python/unicode '{"count":1,"total_count":10,"results":[{"path":{"collection":"COLLECTION_1","key":"06f5e7ccbc20c0d3","ref":"545689fb72dd515a","reftime":1418429812925},"score":1.0,"reftime":1418429812925}],"next":"/v0/COLLECTION_1?limit=1&limit=1&limit=1&query=%2A&query=%2A&query=%2A&offset=1"}'}
+    body: {string: !!python/unicode '{"count":1,"total_count":9,"results":[{"path":{"collection":"COLLECTION_1","kind":"item","key":"08fd74c14420f067","ref":"545689fb72dd515a","reftime":1427146425669},"value":{"lol":true},"score":1.0,"reftime":1427146425669}],"next":"/v0/COLLECTION_1?limit=1&query=%2A&offset=1"}'}
     headers:
       connection: [keep-alive]
       content-type: [application/json]
-      date: ['Sat, 13 Dec 2014 00:17:01 GMT']
-      link: ['</v0/COLLECTION_1?limit=1&limit=1&limit=1&query=%2A&query=%2A&query=%2A&offset=1>;
-          rel="next"']
+      date: ['Mon, 23 Mar 2015 21:33:49 GMT']
+      link: ['</v0/COLLECTION_1?limit=1&query=%2A&offset=1>; rel="next"']
       transfer-encoding: [chunked]
       vary: [Accept-Encoding]
-      x-orchestrate-req-id: [5bdeb950-825d-11e4-a70c-12313d2f9238]
+      x-orchestrate-req-id: [4b4b1110-d1a4-11e4-8248-22000a0d84a1]
     status: {code: 200, message: OK}
 version: 1
