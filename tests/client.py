@@ -13,8 +13,7 @@ class ClientTest(unittest.TestCase):
     def setUp(self):
         self.api_key = API_KEY
         if API_KEY == None:
-            print("No API key provided!")
-            sys.exit(-1)
+            print("***** WARNING: No API key available in ORCHESTRATE_API_KEY! *****")
 
         self.client = porc.Client(self.api_key)
         self.collections = ['COLLECTION_1', 'COLLECTION_2']
