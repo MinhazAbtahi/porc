@@ -98,10 +98,10 @@ class Client(Resource):
 
     def search(self, collection, query_or_search, **params):
         if isinstance(query_or_search, Search):
-            params = dict(list(params.items()) + list(query_or_search.params.items()))
+            params = query_or_search.prepare(params)
         else:
             params['query'] = query_or_search
-            
+
         return Pages(self.opts, self.uri, collection, params)
 
     def get_relations(self, collection, key, *relations):
