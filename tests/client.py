@@ -13,7 +13,7 @@ class ClientTest(unittest.TestCase):
     def setUp(self):
         self.api_key = API_KEY
         if API_KEY == None:
-            print "No API key provided!"
+            print("No API key provided!")
             sys.exit(-1)
 
         self.client = porc.Client(self.api_key)
