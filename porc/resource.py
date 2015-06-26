@@ -1,19 +1,22 @@
-from . import util
+
 import json
 import requests
+import exceptions
 from .response import Response
 import copy
 from requests_futures.sessions import FuturesSession
+import logging
+
 try:
     # python 2
     from urllib import quote
+    from urlparse import urljoin
 except ImportError:
     # python 3
-    from urllib.parse import quote
+    from urllib.parse import quote, urljoin
 
 
 class Resource(object):
-
     def __init__(self, uri, use_async=False, **kwargs):
         self.uri = uri
         self.opts = kwargs
@@ -27,20 +30,28 @@ class Resource(object):
             for key, value in kwargs.items():
                 setattr(obj, key, value)
 
-    def _merge_paths(self, path):
-        if path:
-            if isinstance(path, list):
-                path = '/'.join([quote(str(elem), '') for elem in path])
-            return '/'.join([self.uri, path])
-        else:
-            return self.uri
+    def _make_path(self, path):
+        # If the first element of the list isn't v0, insert it
+        if len(path) > 0 and path[0] != "v0":
+            path.insert(0, "v0")
+        elif len(path) == 0:
+            path = ["v0"]
 
-    def _make_request(self, method, path='', body=None, headers={}):
+        # Escape the components of the path
+        return '/'.join([quote(str(elem), '') for elem in path])
+
+    def _request(self, method, path = [], body = None, headers = {}):
         """
         Executes the request based on the given body and headers
         along with options set on the object.
         """
-        uri = self._merge_paths(path)
+        if isinstance(path, list):
+            path = self._make_path(path)
+
+        uri = urljoin(self.uri, path)
+
+        logging.debug("%s request: %s\n" % (method, uri))
+
         opts = dict(headers=headers)
         session = self.async_session if self.use_async else self.session
         # normalize body according to method and type
