@@ -1,58 +1,29 @@
 from .resource import Resource
 from collections import Iterator
-import copy
-try:
-    # python 2
-    from urllib import quote
-except ImportError:
-    # python 3
-    from urllib.parse import quote
-
 
 class Pages(Iterator):
-
     def __init__(self, opts, url, path, params):
-        if isinstance(path, list):
-            pages_url = '/'.join([url] + [quote(elem) for elem in path])
-        else:
-            pages_url = '/'.join([url, quote(path)])
-        self.resource = Resource(pages_url, **opts)
+        self.initialPath = path
+        self.nextPath = path
+        self.prevPath = None
+        self.resource = Resource(url, **opts)
         self.params = params
-        self._root_resource = Resource(url[:url.find('/v0')], **opts)
-        self.response = None
 
-    def _handle_page(self, querydict={}, val='next', **headers):
-        """
-        Executes the request getting the next (or previous) page,
-        incrementing (or decrementing) the current page.
-        """
-        params = copy.copy(self.params)
+    def _move(self, path, querydict = {}, **headers):
+        if path is None:
+            raise StopIteration
+
+        # Make a copy of parameters
+        params = self.params.copy()
         params.update(querydict)
-        # update uri based on next page
-        if self.response:
-            self.response.raise_for_status()
-            _next = self.response.links.get(val, {}).get('url')
-            if _next:
-                # Note that if we're following a next link, we do NOT include
-                # params again; they are already accounted for in the next pointer
-                response = self._root_resource._make_request(
-                    'GET', _next, {}, **headers)
-                self._handle_res(None, response)
-                return response
-            else:
-                raise StopIteration
-        else:
-            response = self.resource._make_request(
-                'GET', '', params, **headers)
-            self._handle_res(None, response)
-            return response
 
-    def _handle_res(self, session, response):
-        """
-        Stores the response, which we use for determining
-        next and prev pages.
-        """
-        self.response = response
+        # Get the page
+        response = self.resource._request('GET', path, params, **headers)
+
+        # Extract the next/prev links
+        self.nextPath = response.links.get('next', {}).get('url')
+        self.prevPath = response.links.get('prev', {}).get('url')
+        return response
 
     def reset(self):
         """
@@ -64,14 +35,15 @@ class Pages(Iterator):
             page_x = page.next().result()
             assert page_x.url == page_1.url
         """
-        self.response = None
+        self.nextPath = self.initialPath
+        self.prevPath = None
 
     def next(self, querydict={}, **headers):
         """
         Gets the next page of results.
         Raises `StopIteration` when there are no more results.
         """
-        return self._handle_page(querydict, **headers)
+        return self._move(self.nextPath, querydict, **headers)
 
     def __next__(self):
         return self.next()
@@ -84,11 +56,11 @@ class Pages(Iterator):
         Note: Only collection searches provide a `prev` value.
         For all others, `prev` will always return `StopIteration`.
         """
-        return self._handle_page(querydict, 'prev', **headers)
+        return self._move(self.prevPath, querydict, **headers)
 
     def all(self):
         results = []
         for response in self:
-          response.raise_for_status()
-          results.extend(response['results'])
+            response.raise_for_status()
+            results.extend(response['results'])
         return results

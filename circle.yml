@@ -1,0 +1,8 @@
+dependencies:
+  override:
+    - echo "Skip me"
+
+test:
+  override:
+    - /bin/bash .circle/run.sh 2.7
+    - /bin/bash .circle/run.sh 3.4.2
