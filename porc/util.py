@@ -1,6 +1,4 @@
 from datetime import datetime
-from lucenequerybuilder import Q
-
 
 def datetime_to_timestamp(datetime_obj=datetime.now()):
     """

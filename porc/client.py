@@ -6,12 +6,15 @@ from .patch import Patch
 from .search import Search
 from . import util
 
-
 class Client(Resource):
-
-    def __init__(self, api_key, custom_url=None, use_async=False, **kwargs):
+    def __init__(self, api_key, url = None, use_async = False, **kwargs):
         self.api_key = api_key
-        self.url = custom_url or 'https://api.orchestrate.io/v0'
+        self.url = url
+
+        # If no url is provided, use the default
+        if url is None:
+            self.url = 'https://api.orchestrate.io'
+
         if 'headers' not in kwargs:
             kwargs['headers'] = {
                 'Content-Type': 'application/json',
@@ -22,7 +25,7 @@ class Client(Resource):
         super(Client, self).__init__(self.url, use_async, **kwargs)
 
     def ping(self):
-        return self._make_request('HEAD')
+        return self._request('HEAD')
 
     def head(self, collection=None, key=None, ref=None):
         path = list()
@@ -33,17 +36,17 @@ class Client(Resource):
                 if ref:
                     path.append('refs')
                     path.append(ref)
-        return self._make_request('HEAD', path)
+        return self._request('HEAD', path)
 
     def get(self, collection, key, ref=None):
         if ref:
             path = [collection, key, 'refs', ref]
         else:
             path = [collection, key]
-        return self._make_request('GET', path)
+        return self._request('GET', path)
 
     def post(self, collection, body):
-        return self._make_request('POST', collection, body)
+        return self._request('POST', [collection], body)
 
     def put(self, collection, key, body, ref=None):
         opts = dict()
@@ -51,7 +54,7 @@ class Client(Resource):
             opts['If-Match'] = ref.center(len(ref) + 2, '"')
         elif ref == False:
             opts['If-None-Match'] = '"*"'
-        return self._make_request('PUT', [collection, key], body, opts)
+        return self._request('PUT', [collection, key], body, opts)
 
     def patch(self, collection, key, body_or_patch, ref=None):
         opts = {'Content-Type': 'application/json-patch+json'}
@@ -66,7 +69,7 @@ class Client(Resource):
         else:
             body = body_or_patch
 
-        return self._make_request('PATCH', [collection, key], body, opts)
+        return self._request('PATCH', [collection, key], body, opts)
 
     def patch_merge(self, collection, key, body, ref=None):
         opts = {'Content-Type': 'application/merge-patch+json'}
@@ -76,7 +79,7 @@ class Client(Resource):
             # If-None-Match is not relevant for a PATCH request.
             opts['If-None-Match'] = '"*"'
 
-        return self._make_request('PATCH', [collection, key], body, opts)
+        return self._request('PATCH', [collection, key], body, opts)
 
     def delete(self, collection, key=None, ref=None):
         if key:
@@ -86,41 +89,41 @@ class Client(Resource):
                 opts['If-Match'] = ref.center(len(ref) + 2, '"')
             else:
                 params['purge'] = True
-            return self._make_request('DELETE', [collection, key], params, opts)
+            return self._request('DELETE', [collection, key], params, opts)
         else:
-            return self._make_request('DELETE', collection, dict(force=True))
+            return self._request('DELETE', [collection], dict(force=True))
 
     def refs(self, collection, key, **params):
-        return self._make_request('GET', [collection, key, 'refs'], params)
+        return self._request('GET', [collection, key, 'refs'], params)
 
     def list(self, collection, **params):
-        return Pages(self.opts, self.uri, collection, params)
+        return Pages(self.opts, self.uri, [collection], params)
 
     def search(self, collection, query_or_search, **params):
         if isinstance(query_or_search, Search):
-            params = query_or_search.prepare(params)
+            params.update(query_or_search.params)
         else:
             params['query'] = query_or_search
 
-        return Pages(self.opts, self.uri, collection, params)
+        return Pages(self.opts, self.uri, [collection], params)
 
     def get_relations(self, collection, key, *relations):
         path = [collection, key, 'relations'] + list(relations)
-        return self._make_request('GET', path)
+        return self._request('GET', path)
 
     def put_relation(self, collection, key, relation, to_collection, to_key):
         path = [collection, key, 'relation', relation, to_collection, to_key]
-        return self._make_request('PUT', path)
+        return self._request('PUT', path)
 
     def delete_relation(self, collection, key, relation, to_collection, to_key):
         path = [collection, key, 'relation', relation, to_collection, to_key]
-        return self._make_request('DELETE', path, dict(purge=True))
+        return self._request('DELETE', path, dict(purge=True))
 
     def get_event(self, collection, key, event_type, timestamp, ordinal):
         if isinstance(timestamp, datetime):
             timestamp = util.datetime_to_timestamp(timestamp)
         path = [collection, key, 'events', event_type, timestamp, ordinal]
-        return self._make_request('GET', path)
+        return self._request('GET', path)
 
     def post_event(self, collection, key, event_type, data, timestamp=None):
         path = [collection, key, 'events', event_type]
@@ -128,7 +131,7 @@ class Client(Resource):
             if isinstance(timestamp, datetime):
                 timestamp = util.datetime_to_timestamp(timestamp)
             path.append(timestamp)
-        return self._make_request('POST', path, data)
+        return self._request('POST', path, data)
 
     def put_event(self, collection, key, event_type, timestamp, ordinal, data, ref=None):
         if isinstance(timestamp, datetime):
@@ -137,7 +140,7 @@ class Client(Resource):
         headers = dict()
         if ref:
             headers['If-Match'] = ref.center(len(ref) + 2, '"')
-        return self._make_request('PUT', path, data, headers=headers)
+        return self._request('PUT', path, data, headers=headers)
 
     def delete_event(self, collection, key, event_type, timestamp, ordinal, ref=None):
         if isinstance(timestamp, datetime):
@@ -147,7 +150,7 @@ class Client(Resource):
         params = dict(purge=True)
         if ref:
             headers['If-Match'] = ref.center(len(ref) + 2, '"')
-        return self._make_request('DELETE', path, params, headers=headers)
+        return self._request('DELETE', path, params, headers=headers)
 
     def list_events(self, collection, key, event_type, **params):
         path = [collection, key, 'events', event_type]
