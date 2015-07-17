@@ -21,8 +21,7 @@ setup(name='porc',
       packages=['porc'],
       license='ASLv2',
       install_requires=[
-          'requests-futures==0.9.4',
-          'vcrpy==1.1.0',
+          'requests-futures==0.9.5',
           'lucene-querybuilder==0.2'
       ],
       test_suite="tests",

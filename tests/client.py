@@ -1,6 +1,5 @@
 from datetime import datetime
 import time
-import vcr
 import porc
 import unittest
 from . import API_KEY, API_URL
