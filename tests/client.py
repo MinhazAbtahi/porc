@@ -187,16 +187,27 @@ class ClientTest(unittest.TestCase):
         self.client.delete(resp.collection, resp.key).raise_for_status()
 
     def test_list(self):
-        # create
-        resp = self.client.post(self.collection, {"derp": True})
-        resp.raise_for_status()
-        # list
-        pages = self.client.list(resp.collection, limit=1)
-        page = pages.next()
-        page.raise_for_status()
-        assert page['count'] == 1
-        # delete
-        self.client.delete(resp.collection, resp.key).raise_for_status()
+        # Create multiple items in the collection
+        keys = []
+        for i in range(0, 10):
+            resp = self.client.post(self.collection, {"list_test": True})
+            resp.raise_for_status()
+            keys.append(resp.key)
+
+        # Walk the pages
+        count = 0
+        pages = self.client.list(self.collection, limit=1)
+        for p in pages:
+            p.raise_for_status()
+            count += p['count']
+            if p['next'] != None:
+                assert len(p['next']) <= 59
+
+        assert count == 10
+
+        # Cleanup
+        for k in keys:
+            resp = self.client.delete(self.collection, k).raise_for_status()
 
     def test_search(self):
         # create

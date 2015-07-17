@@ -4,6 +4,7 @@ from collections import Iterator
 class Pages(Iterator):
     def __init__(self, opts, url, path, params):
         self.initialPath = path
+        self.initialParams = params
         self.nextPath = path
         self.prevPath = None
         self.resource = Resource(url, **opts)
@@ -23,6 +24,10 @@ class Pages(Iterator):
         # Extract the next/prev links
         self.nextPath = response.links.get('next', {}).get('url')
         self.prevPath = response.links.get('prev', {}).get('url')
+
+        # Remove the original params (next, prev now has what we need)
+        self.params = {}
+
         return response
 
     def reset(self):
@@ -37,6 +42,7 @@ class Pages(Iterator):
         """
         self.nextPath = self.initialPath
         self.prevPath = None
+        self.params = self.initialParams
 
     def next(self, querydict={}, **headers):
         """
