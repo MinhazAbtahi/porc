@@ -46,6 +46,7 @@ class Resource(object):
 
         uri = urljoin(self.uri, path)
 
+        headers['Accept-Encoding'] = 'gzip'
         opts = dict(headers=headers)
         session = self.async_session if self.use_async else self.session
         # normalize body according to method and type
