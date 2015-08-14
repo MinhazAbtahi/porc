@@ -48,7 +48,7 @@ class Resource(object):
 
         header_names= set(name.lower() for name in headers)
         if "accept-encoding" not in header_names:
-            headers['accept-encoding'] = 'gzip'
+            headers['Accept-Encoding'] = 'gzip'
 
         opts = dict(headers=headers)
         session = self.async_session if self.use_async else self.session
