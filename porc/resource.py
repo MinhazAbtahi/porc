@@ -1,15 +1,17 @@
 from . import util
 import json
-import requests
 from .response import Response
 import copy
-from requests_futures.sessions import FuturesSession
+from google.appengine.api import urlfetch
+
 try:
     # python 2
     from urllib import quote
+    from urllib import urlencode
 except ImportError:
     # python 3
     from urllib.parse import quote
+    from urllib.parse import urlencode
 
 
 class Resource(object):
@@ -17,13 +19,12 @@ class Resource(object):
     def __init__(self, uri, use_async=False, **kwargs):
         self.uri = uri
         self.opts = kwargs
-        self.session = requests.Session()
-        self.async_session = FuturesSession()
+        self.session = urlfetch
         self.use_async = use_async
         kwargs['hooks'] = {
             "response": self._handle_response
         }
-        for obj in [self.session, self.async_session]:
+        for obj in [self.session]:
             for key, value in kwargs.items():
                 setattr(obj, key, value)
 
@@ -42,7 +43,8 @@ class Resource(object):
         """
         uri = self._merge_paths(path)
         opts = dict(headers=headers)
-        session = self.async_session if self.use_async else self.session
+        opts['headers'].update(self.session.headers)
+        session = self.session
         # normalize body according to method and type
         if body != None:
             if method.lower() in ['head', 'get', 'delete']:
@@ -53,11 +55,14 @@ class Resource(object):
                             body[key] = 'true'
                         elif value is False:
                             body[key] = 'false'
-                opts['params'] = body
+                uri += '?' + urlencode(body, doseq=True)
+            elif method.lower() == 'post':
+                opts['headers']['Content-Type'] = 'application/x-www-form-urlencoded'
+                opts['payload'] = urlencode(body, doseq=True)
             else:
-                opts['data'] = json.dumps(body)
+                opts['payload'] = json.dumps(body)
 
-        return session.request(method, uri, **opts)
+        return session.fetch(uri, method=getattr(urlfetch, method), **opts)
 
     def _handle_response(self, response, *args, **kwargs):
         return Response(response)

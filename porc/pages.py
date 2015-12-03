@@ -36,14 +36,14 @@ class Pages(Iterator):
                 # Note that if we're following a next link, we do NOT include
                 # params again; they are already accounted for in the next pointer
                 response = self._root_resource._make_request(
-                    'GET', _next, {}, **headers)
+                    'POST', _next, {}, **headers)
                 self._handle_res(None, response)
                 return response
             else:
                 raise StopIteration
         else:
             response = self.resource._make_request(
-                'GET', '', params, **headers)
+                'POST', '', params, **headers)
             self._handle_res(None, response)
             return response
 

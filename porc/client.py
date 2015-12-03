@@ -1,4 +1,5 @@
 from datetime import datetime
+import base64
 from .resource import Resource
 from .version import VERSION
 from .pages import Pages
@@ -16,9 +17,17 @@ class Client(Resource):
             kwargs['headers'] = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'User-Agent': 'python-requests/1.2.0 porc/%s' % VERSION
+                'User-Agent': 'python-requests/1.2.0 porc/%s' % VERSION,
             }
-        kwargs['auth'] = (self.api_key, '')
+
+        kwargs['headers'].update(
+            {
+                'Authorization': 'Basic {}:'.format(
+                    base64.b64encode(self.api_key+':')
+                )
+            }
+        )
+        #kwargs['auth'] = (self.api_key, '')
         super(Client, self).__init__(self.url, use_async, **kwargs)
 
     def ping(self):
